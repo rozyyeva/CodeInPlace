@@ -239,13 +239,25 @@ def create_bricks(canvas, image):
     # First, we select 3 random positions where can place the gemstones.
     gem_loc = set()
     while len(gem_loc) < 3:
-        row = random.randint(1, N_ROWS - 2)
         col = random.randint(1, N_COLS - 2)
-        gem_loc.add((row, col))
+        if N_ROWS > 4:
+            row = random.randint(1, N_ROWS - 2)
+        else:
+            row = random.randint(0, N_ROWS - 1)
+        # Force gems to appear in different columns
+        already_added = False
+        for (prev_row, prev_col) in gem_loc:
+            if (row == prev_row and N_ROWS > 4) or col == prev_col:
+                already_added = True
+                break
+        if not already_added:
+            gem_loc.add((row, col))
     # Now, let's put the bricks with a different rainbow color in every 2 rows.
     bricks = []
     for row in range(N_ROWS):
-        color_index = (row // N_ROWS_PER_COLOR) % (N_ROWS - 1)
+        color_index = row // N_ROWS_PER_COLOR
+        if color_index >= len(RAINBOW_COLORS):
+            color_index %= (N_ROWS - 1)
         fill_color = RAINBOW_COLORS[color_index]
         for col in range(N_COLS):
             y1 = row * (BRICK_HEIGHT + SPACING) + BRICK_START_Y
